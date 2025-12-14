@@ -1,5 +1,7 @@
 from typing import Annotated, Tuple
 from urllib.parse import urlparse, urlunparse
+import logging
+from pathlib import Path
 
 import markdownify
 import readabilipy.simple_json
@@ -20,8 +22,17 @@ from mcp.types import (
 from protego import Protego
 from pydantic import BaseModel, Field, AnyUrl
 
-DEFAULT_USER_AGENT_AUTONOMOUS = "ModelContextProtocol/1.0 (Autonomous; +https://github.com/modelcontextprotocol/servers)"
-DEFAULT_USER_AGENT_MANUAL = "ModelContextProtocol/1.0 (User-Specified; +https://github.com/modelcontextprotocol/servers)"
+DEFAULT_USER_AGENT_AUTONOMOUS = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+DEFAULT_USER_AGENT_MANUAL = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+# Set up logging to log.txt
+logging.basicConfig(
+    filename='log.txt',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 
 def extract_content_from_html(html: str) -> str:
@@ -125,7 +136,12 @@ async def fetch_url(
                 timeout=30,
             )
         except HTTPError as e:
+            logger.error(f"Failed to fetch URL: {url} - Error: {e!r}")
             raise McpError(ErrorData(code=INTERNAL_ERROR, message=f"Failed to fetch {url}: {e!r}"))
+        
+        # Log the response code
+        logger.info(f"Fetched URL: {url} - Status: {response.status_code} - Content-Length: {len(response.text)} bytes")
+        
         if response.status_code >= 400:
             raise McpError(ErrorData(
                 code=INTERNAL_ERROR,
@@ -180,7 +196,7 @@ class Fetch(BaseModel):
 
 async def serve(
     custom_user_agent: str | None = None,
-    ignore_robots_txt: bool = False,
+    ignore_robots_txt: bool = True,
     proxy_url: str | None = None,
 ) -> None:
     """Run the fetch MCP server.
