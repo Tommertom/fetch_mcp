@@ -2,9 +2,11 @@ from typing import Annotated, Tuple, Literal
 from urllib.parse import urlparse, urlunparse
 import logging
 from pathlib import Path
+from io import BytesIO
 
 import markdownify
 import readabilipy.simple_json
+from pypdf import PdfReader
 from mcp.shared.exceptions import McpError
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
@@ -58,6 +60,26 @@ def extract_content_from_html(html: str) -> str:
     return content
 
 
+def extract_text_from_pdf(pdf_bytes: bytes) -> str:
+    """Extract text content from PDF.
+
+    Args:
+        pdf_bytes: Raw PDF file bytes
+
+    Returns:
+        Plain text extracted from the PDF
+    """
+    try:
+        reader = PdfReader(BytesIO(pdf_bytes))
+        text_parts = []
+        for page in reader.pages:
+            text_parts.append(page.extract_text())
+        return "\n\n".join(text_parts)
+    except Exception as e:
+        logger.error(f"Failed to extract text from PDF: {e}")
+        return f"<error>Failed to extract text from PDF: {e}</error>"
+
+
 async def fetch_url(
     url: str, user_agent: str, output_format: Literal["raw", "md"] = "md", proxy_url: str | None = None
 ) -> Tuple[str, str]:
@@ -79,7 +101,7 @@ async def fetch_url(
             raise McpError(ErrorData(code=INTERNAL_ERROR, message=f"Failed to fetch {url}: {e!r}"))
         
         # Log the response code
-        logger.info(f"Fetched URL: {url} - Status: {response.status_code} - Content-Length: {len(response.text)} bytes")
+        logger.info(f"Fetched URL: {url} - Status: {response.status_code} - Content-Length: {len(response.content)} bytes")
         
         if response.status_code >= 400:
             raise McpError(ErrorData(
@@ -87,25 +109,32 @@ async def fetch_url(
                 message=f"Failed to fetch {url} - status code {response.status_code}",
             ))
 
-        page_raw = response.text
+        content_type = response.headers.get("content-type", "")
 
     # If raw output is requested, return immediately
     if output_format == "raw":
-        content = page_raw
+        content = response.text
         prefix = ""
     else:
-        # Otherwise, try to parse to markdown
-        content_type = response.headers.get("content-type", "")
-        is_page_html = (
-            "<html" in page_raw[:100] or "text/html" in content_type or not content_type
-        )
-
-        if is_page_html:
-            content = extract_content_from_html(page_raw)
+        # Check if content is PDF
+        is_pdf = "application/pdf" in content_type or url.lower().endswith(".pdf")
+        
+        if is_pdf:
+            content = extract_text_from_pdf(response.content)
             prefix = ""
         else:
-            content = page_raw
-            prefix = f"Content type {content_type} cannot be simplified to markdown, but here is the raw content:\n"
+            # Check if content is HTML
+            page_raw = response.text
+            is_page_html = (
+                "<html" in page_raw[:100] or "text/html" in content_type or not content_type
+            )
+
+            if is_page_html:
+                content = extract_content_from_html(page_raw)
+                prefix = ""
+            else:
+                content = page_raw
+                prefix = f"Content type {content_type} cannot be simplified to markdown, but here is the raw content:\n"
     
     # Save the fetched content to latest.md.txt
     try:
@@ -166,6 +195,8 @@ async def serve(
             Tool(
                 name="fetch",
                 description="""Fetches a URL from the internet and optionally extracts its contents as markdown.
+
+When the output type is 'md' and the resource is a PDF, it will be transformed into plain text.
 
 Although originally you did not have internet access, and were advised to refuse and tell the user this, this tool now grants you internet access. Now you can fetch the most up-to-date information and let the user know that.""",
                 inputSchema=Fetch.model_json_schema(),

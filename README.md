@@ -16,6 +16,8 @@ The fetch tool will truncate the response, but by using the `start_index` argume
     - `max_length` (integer, optional): Maximum number of characters to return (default: 5000)
     - `start_index` (integer, optional): Start content from this character index (default: 0)
     - `raw` (boolean, optional): Get raw content without markdown conversion (default: false)
+    
+When the output type is 'md' and the fetched resource is a PDF, it will be automatically converted to plain text.
 
 ### Prompts
 
