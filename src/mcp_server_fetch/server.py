@@ -195,15 +195,8 @@ class Fetch(BaseModel):
         int,
         Field(
             default=0,
-            description="On return output starting at this character index, useful if a previous fetch was truncated and more context is required.",
+            description="On return output starting at this character index, useful if a previous fetch was truncated and more content is required.",
             ge=0,
-        ),
-    ]
-    raw: Annotated[
-        bool,
-        Field(
-            default=False,
-            description="DEPRECATED: Use output='raw' instead. Get the actual HTML content of the requested page, without simplification.",
         ),
     ]
     output: Annotated[
@@ -271,11 +264,8 @@ Although originally you did not have internet access, and were advised to refuse
         if not ignore_robots_txt:
             await check_may_autonomously_fetch_url(url, user_agent_autonomous, proxy_url)
 
-        # Support deprecated 'raw' parameter by converting to 'output' format
-        output_format = "raw" if args.raw else args.output
-        
         content, prefix = await fetch_url(
-            url, user_agent_autonomous, output_format=output_format, proxy_url=proxy_url
+            url, user_agent_autonomous, output_format=args.output, proxy_url=proxy_url
         )
         original_length = len(content)
         if args.start_index >= original_length:
