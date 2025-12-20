@@ -2,6 +2,16 @@
 
 A Model Context Protocol server that provides web content fetching capabilities **with built-in prompt injection safeguards**. This server enables LLMs to retrieve and process content from web pages, converting HTML to markdown for easier consumption, while protecting against malicious content that could manipulate the LLM.
 
+## 🚀 Quick Start
+
+Run the MCP server using [uvx](https://docs.astral.sh/uv/guides/tools/):
+
+```bash
+uvx --refresh mcp-server-fetch-tom
+```
+
+The `--refresh` flag ensures you always get the latest version.
+
 ## ⚠️ Disclaimer
 
 **This software is provided "as is" without warranty of any kind.** While this server implements prompt injection detection and mitigation measures, **no security solution is 100% effective**. The safeguards implemented are designed to reduce risk but cannot guarantee complete protection against all prompt injection attacks. 
@@ -62,26 +72,15 @@ When the output type is 'md' and the fetched resource is a PDF, it will be autom
 
 ## Installation
 
-Optionally: Install node.js, this will cause the fetch server to use a different HTML simplifier that is more robust.
-
 ### Using uv (recommended)
 
 When using [`uv`](https://docs.astral.sh/uv/) no specific installation is needed. We will
-use [`uvx`](https://docs.astral.sh/uv/guides/tools/) to directly run *mcp-server-fetch*.
+use [`uvx`](https://docs.astral.sh/uv/guides/tools/) to directly run *mcp-server-fetch-tom*:
 
-### Using PIP
-
-Alternatively you can install `mcp-server-fetch-tom` via pip:
-
-```
-pip install mcp-server-fetch-tom
+```bash
+uvx --refresh mcp-server-fetch-tom
 ```
 
-After installation, you can run it as a script using:
-
-```
-mcp-server-fetch-tom
-```
 
 ## Configuration
 
@@ -97,7 +96,7 @@ Add to your Claude settings:
   "mcpServers": {
     "fetch": {
       "command": "uvx",
-      "args": ["--quiet", "mcp-server-fetch-tom"]
+      "args": ["--refresh", "mcp-server-fetch-tom"]
     }
   }
 }
@@ -137,7 +136,7 @@ Add to your Claude settings:
 
 For quick installation, use one of the one-click install buttons below...
 
-[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=fetch&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22--quiet%22%2C%22mcp-server-fetch-tom%22%5D%7D) [![Install with UV in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-UV-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=fetch&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22--quiet%22%2C%22mcp-server-fetch-tom%22%5D%7D&quality=insiders)
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=fetch&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22--refresh%22%2C%22mcp-server-fetch-tom%22%5D%7D) [![Install with UV in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-UV-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=fetch&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22--refresh%22%2C%22mcp-server-fetch-tom%22%5D%7D&quality=insiders)
 
 [![Install with Docker in VS Code](https://img.shields.io/badge/VS_Code-Docker-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=fetch&config=%7B%22command%22%3A%22docker%22%2C%22args%22%3A%5B%22run%22%2C%22-i%22%2C%22--rm%22%2C%22mcp%2Ffetch%22%5D%7D) [![Install with Docker in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Docker-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=fetch&config=%7B%22command%22%3A%22docker%22%2C%22args%22%3A%5B%22run%22%2C%22-i%22%2C%22--rm%22%2C%22mcp%2Ffetch%22%5D%7D&quality=insiders)
 
@@ -156,7 +155,7 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
     "servers": {
       "fetch": {
         "command": "uvx",
-        "args": ["--quiet", "mcp-server-fetch-tom"]
+        "args": ["--refresh", "mcp-server-fetch-tom"]
       }
     }
   }
@@ -217,7 +216,7 @@ If you're experiencing timeout issues on Windows, you may need to set the `PYTHO
   "mcpServers": {
     "fetch": {
       "command": "uvx",
-      "args": ["mcp-server-fetch-tom"],
+      "args": ["--refresh", "mcp-server-fetch-tom"],
       "env": {
         "PYTHONIOENCODING": "utf-8"
       }
