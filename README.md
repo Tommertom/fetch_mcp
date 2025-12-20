@@ -34,9 +34,9 @@ Content is scanned for 20+ suspicious patterns including:
 - **Encoded instructions**: Base64 patterns, "decode and execute"
 
 When suspicious patterns are detected:
-- A `SECURITY_WARNING` is added to the output
-- The LLM is instructed to spawn a subagent for independent review
-- If confirmed malicious, the LLM should HALT and inform the user
+- **NO DATA is returned** - the fetched content is completely blocked
+- Only a warning message is returned indicating the number of patterns detected
+- The source URL is provided so users can manually review if they believe it's a false positive
 
 > [!CAUTION]
 > This server can access local/internal IP addresses and may represent a security risk. Exercise caution when using this MCP server to ensure this does not expose any sensitive data.
