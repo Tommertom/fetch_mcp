@@ -219,11 +219,6 @@ Then configure:
 ```
 </details>
 
-### Customization - robots.txt
-
-By default, the server will obey a websites robots.txt file if the request came from the model (via a tool), but not if
-the request was user initiated (via a prompt). This can be disabled by adding the argument `--ignore-robots-txt` to the
-`args` list in the configuration.
 
 ### Customization - User-agent
 
